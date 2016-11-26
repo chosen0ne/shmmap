@@ -10,11 +10,11 @@
 #ifndef SHMMAP_M_POOL_H
 #define SHMMAP_M_POOL_H
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<stdbool.h>
-#include<string.h>
-#include<stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdarg.h>
 
 #define padding(p) *((int *)p) = 0
 #define NIL -1
@@ -96,7 +96,7 @@ typedef struct m_mem_info {
  * log				日志handler
  * is_inited: 		是否已经初始化。已经初始化则直接读取索引，否则建立索引。
  */
-bool m_init(void *pool_ptr, int pool_size, shmmap_log log, bool is_inited);
+bool m_init(char *pool_ptr, int pool_size, shmmap_log log, bool is_inited);
 /* 申请可以容纳len bytes的内存块 */
 void* m_alloc(int len);
 /* 释放p指向的内存块 */

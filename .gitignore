@@ -2,3 +2,4 @@
 *.dat
 src/shmmap_test
 src/libshmmap.a
+tags

@@ -7,8 +7,9 @@
  * @date 2012-04-07
  */
 
+#include <assert.h>
+
 #include "m_pool.h"
-#include<assert.h>
 
 static int M_HEADER_SIZE = sizeof(M_header);
 static int BLOCK_HEADER_SIZE = sizeof(M_block_hdr);	// 空闲块头部大小
@@ -23,7 +24,7 @@ static int pool_byte_size;			// 内存池包含的字节数
 static int *current_p_offset;		// 当前空闲区的起始地址距离内存池起始地址的偏移量
 static shmmap_log m_pool_log;		// 日志handler
 
-static char *log_level_labels[SHMMAP_LOG_LEVEL_NUM] = {"DEBUG", "INFO", "WARN", "ERROR"};
+static const char *log_level_labels[SHMMAP_LOG_LEVEL_NUM] = {"DEBUG", "INFO", "WARN", "ERROR"};
 
 /* 根据申请的内存大小返回对应的空闲块链 */
 static int free_list_idx(int size);
@@ -171,8 +172,8 @@ _m_free(int data_offset){
 }
 
 bool
-m_init(void *p, int pool_byte_len, shmmap_log log, bool is_inited){
-	int 	i, f_list_len;
+m_init(char *p, int pool_byte_len, shmmap_log log, bool is_inited){
+	int 	i;
 	int 	*size_p;
 
 	// 初始化日志handler
@@ -181,17 +182,16 @@ m_init(void *p, int pool_byte_len, shmmap_log log, bool is_inited){
 		m_pool_log = default_shmmap_log;
 	}
 
-	f_list_len = FREE_LIST_SIZE;
-	if(pool_byte_len < INT_SIZE*2 + M_HEADER_SIZE*f_list_len){
+	free_list_len = FREE_LIST_SIZE;
+	if(pool_byte_len < INT_SIZE*3 + M_HEADER_SIZE*free_list_len + PTR_SIZE){
 		m_pool_log(SHMMAP_LOG_ERROR, "[m_init]The pool size is too small %d bytes，it can't allocatie memory for index %d bytes",
-			pool_byte_len, INT_SIZE*2+M_HEADER_SIZE*f_list_len);
+			pool_byte_len, INT_SIZE*2+M_HEADER_SIZE*free_list_len);
 		return false;
 	}
 
 	pool_ptr_s = p;
 	pool_byte_size = pool_byte_len;
-	pool_ptr_e = pool_ptr_s + pool_byte_size;
-	free_list_len = f_list_len;
+	pool_ptr_e = p + pool_byte_size;
 
 	/**
 	 * 内存池头部：
@@ -208,7 +208,7 @@ m_init(void *p, int pool_byte_len, shmmap_log log, bool is_inited){
 		free_list = (M_header *)p;
 	}else{
 		size_p = (int *)p;
-		*size_p++ = f_list_len;
+		*size_p++ = free_list_len;
 		*size_p = 0;	// padding
 		p += INT_SIZE * 2;
 		current_p_offset = (int *)p;
@@ -222,11 +222,11 @@ m_init(void *p, int pool_byte_len, shmmap_log log, bool is_inited){
 		}
 		p += M_HEADER_SIZE * free_list_len;
 		padding(p);
-		*current_p_offset = (char *)p + INT_SIZE - (char *)pool_ptr_s;
+		*current_p_offset = p + INT_SIZE - (char *)pool_ptr_s;
 	}
 
-	m_pool_log(SHMMAP_LOG_INFO, "[m_init]Init memory pool, address start at %p, end at %p, size is %d",
-		pool_ptr_s, pool_ptr_e, pool_byte_len);
+	m_pool_log(SHMMAP_LOG_INFO, "[m_init]Init memory pool, address start at %p, end at %p, cur offset at %d, size is %d",
+		pool_ptr_s, pool_ptr_e, *current_p_offset, pool_byte_len);
 
 	return true;
 }
@@ -330,8 +330,8 @@ ptr_offset(void *p){
 void*
 get_ptr(int offset){
 	void *p = (char*)pool_ptr_s + offset;
-	assert(p > pool_ptr_s);
-	assert(p < pool_ptr_e);
+    assert(p > pool_ptr_s);
+    assert(p < pool_ptr_e);
 	if(p<pool_ptr_s || p>pool_ptr_e){
 		m_pool_log(SHMMAP_LOG_ERROR, "[get_ptr]Offset(%d) must be larger than 0 and less than pool_byte_size(%d)",
 			offset, pool_byte_size);
@@ -344,7 +344,7 @@ void
 default_shmmap_log(shmmap_log_level level, const char *msg_fmt, ...){
 	va_list ap;
 	va_start(ap, msg_fmt);
-	char *fmt = malloc(strlen(msg_fmt)+20);
+	char *fmt = (char *)malloc(strlen(msg_fmt)+20);
 	sprintf(fmt, "-%s- %s\n", log_level_labels[level], msg_fmt);
 	vprintf(fmt, ap);
 	free(fmt);
