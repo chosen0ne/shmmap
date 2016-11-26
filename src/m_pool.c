@@ -1,3 +1,12 @@
+/**
+ *
+ * 基于各种尺寸大小的空闲块链实现的内存池
+ *
+ * @file m_pool.c
+ * @author chosen0ne
+ * @date 2012-04-07
+ */
+
 #include "m_pool.h"
 #include<assert.h>
 

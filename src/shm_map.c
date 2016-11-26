@@ -1,3 +1,12 @@
+/**
+ *
+ * 基于共享内存实现的map
+ *
+ * @file shm_map.c
+ * @author chosen0ne
+ * @date 2012-04-10
+ */
+
 #include "shm_map.h"
 
 static int MAX_CAPACITY = 1 << 30;	// 桶的最大个数

@@ -1,3 +1,15 @@
+/**
+ *
+ * 基于各种尺寸大小的空闲块链实现的内存池
+ *
+ * @file m_pool.h
+ * @author chosen0ne
+ * @date 2012-04-07
+ */
+
+#ifndef SHMMAP_M_POOL_H
+#define SHMMAP_M_POOL_H
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
@@ -8,6 +20,10 @@
 #define NIL -1
 /* 允许内存块的最大值为 8*128*1024 = 1MB */
 #define FREE_LIST_SIZE 128*1024
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
 	SHMMAP_LOG_DEBUG,
@@ -109,3 +125,9 @@ int ptr_offset(void *p);
 
 //**********************默认日志输出handler***************//
 void default_shmmap_log(shmmap_log_level level, const char *msg, ...);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

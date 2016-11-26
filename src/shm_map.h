@@ -1,3 +1,15 @@
+/**
+ *
+ * 基于共享内存实现的map
+ *
+ * @file shm_map.h
+ * @author chosen0ne
+ * @date 2012-04-10
+ */
+
+#ifndef SHMMAP_SHM_MAP_H
+#define SHMMAP_SHM_MAP_H
+
 #include<stdio.h>
 #include<string.h>
 #include<fcntl.h>
@@ -10,6 +22,10 @@
 
 #define FILE_MODE   (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
 #define DATA_FILE "shm_map.dat"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * hash链表的节点
@@ -47,3 +63,9 @@ char* map_get(const char *k);
 int map_size();
 bool map_contains(const char *k);
 void map_iter(key_iter);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
