@@ -7,6 +7,7 @@ shmmap is key-value map in shared memory which can be used in multi-process. As 
 
 ##Features
 * Map operations are supported, such as put, get, iteration, contains...
+* Support node bindings which can use shmmap in nodejs.
 
 ##Compile
 Just make it.
@@ -36,5 +37,11 @@ After *make*, a runnable binary named 'shmmap_test' in *src* directory is genera
 
 You can also run it in multi processes meanwhile, to see the magic power of the *shmmap* (Write maded in one process can be see by other processes).
 The example code can be found in src/shmmap_test.c
+
+##Node Binding
+
+    > make node
+
+In *ext/node/build/Release*, 'shmmap.node' is generated which is node module. And the example code 'shmmap_test.js' is also is *ext/node*.
 
 *Enjoy it*
